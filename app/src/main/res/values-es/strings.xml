@@ -86,6 +86,10 @@
   <string name="cpu_min_freq_summary">Establecer la frecuencia mínima del CPU.</string>
   <string name="cpu_max_screen_off_freq">Frecuencia máxima del CPU con la pantalla apagada</string>
   <string name="cpu_max_screen_off_freq_summary">Ajustar la frecuencia máxima de la CPU cuando la pantalla está apagada.</string>
+  <string name="hard_cpu_max_freq">Frecuencia máxima del Hard Limit</string>
+  <string name="hard_cpu_max_freq_summary">Establecer la frecuencia máxima del Hard Limit.</string>
+  <string name="hard_cpu_min_freq">Frecuencia mínima del Hard Limit</string>
+  <string name="hard_cpu_min_freq_summary">Establecer la frecuencia mínima del Hard Limit.</string>
   <string name="cpu_governor">Gobernador del CPU</string>
   <string name="cpu_governor_summary">El gobernador de CPU determina la forma en que la CPU se comporta en respuesta a los cambios en la carga de trabajo. Cambiar el gobernador tendrá impacto sobre cómo la CPU escala a través de los pasos de frecuencia disponibles para tu CPU.</string>
   <string name="cpu_governor_tunables">Optimizadores del Gobernador del CPU</string>
