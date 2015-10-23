@@ -103,6 +103,8 @@ public class CPUFragment extends ViewPagerFragment implements Constants {
         private AppCompatTextView[] mCoreUsageText;
         private AppCompatTextView[] mCoreFreqText;
 
+        private SwitchCardView.DSwitchCard mLockFreqCard;
+
         private PopupCardView.DPopupCard mMaxFreqCard, mMinFreqCard, mMaxScreenOffFreqCard, mHardMaxFreqCard, mHardMinFreqCard;
 
         private PopupCardView.DPopupCard mGovernorCard;
@@ -236,6 +238,16 @@ public class CPUFragment extends ViewPagerFragment implements Constants {
             List<String> freqs = new ArrayList<>();
             for (int freq : CPU.getFreqs())
                 freqs.add(freq / 1000 + getString(R.string.mhz));
+
+            if (CPU.hasLockFreq()) {
+                mLockFreqCard = new SwitchCardView.DSwitchCard();
+                mLockFreqCard.setTitle(getString(R.string.cpu_lock_freq));
+                mLockFreqCard.setDescription(getString(R.string.cpu_lock_freq_summary));
+                mLockFreqCard.setChecked(CPU.isLockFreqActive());
+                mLockFreqCard.setOnDSwitchCardListener(this);
+
+                addView(mLockFreqCard);
+            }
 
             if (CPU.hasHardMaxFreq()) {
                 mHardMaxFreqCard = new PopupCardView.DPopupCard(freqs);
@@ -662,6 +674,8 @@ public class CPUFragment extends ViewPagerFragment implements Constants {
                 CPU.activateCpuBoostHotplug(checked, getActivity());
             else if (dSwitchCard == mCpuTouchBoostCard)
                 CPU.activateCpuTouchBoost(checked, getActivity());
+            else if (dSwitchCard == mLockFreqCard)
+                CPU.activateLockFreq(checked, getActivity());
         }
 
         @Override
