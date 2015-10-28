@@ -32,6 +32,8 @@ public class SoundFragment extends RecyclerViewFragment implements
         SeekBarCardView.DSeekBarCard.OnDSeekBarCardListener {
 
     private SwitchCardView.DSwitchCard mSoundControlEnableCard;
+    private SwitchCardView.DSwitchCard mLockOutputGainCard;
+    private SwitchCardView.DSwitchCard mLockMicGainCard;
     private SwitchCardView.DSwitchCard mHighPerfModeEnableCard;
     private SeekBarCardView.DSeekBarCard mHeadphoneGainCard;
     private SeekBarCardView.DSeekBarCard mHandsetMicrophoneGainCard;
@@ -46,6 +48,8 @@ public class SoundFragment extends RecyclerViewFragment implements
         super.init(savedInstanceState);
 
         if (Sound.hasSoundControlEnable()) soundControlEnableInit();
+        if (Sound.hasLockOutputGain()) lockOutputGainInit();
+        if (Sound.hasLockMicGain()) lockMicGainInit();
         if (Sound.hasHighPerfModeEnable()) highPerfModeEnableInit();
         if (Sound.hasHeadphoneGain()) headphoneGainInit();
         if (Sound.hasHandsetMicrophoneGain()) handsetMicrophoneGainInit();
@@ -63,6 +67,26 @@ public class SoundFragment extends RecyclerViewFragment implements
         mSoundControlEnableCard.setOnDSwitchCardListener(this);
 
         addView(mSoundControlEnableCard);
+    }
+
+    private void lockOutputGainInit() {
+        mLockOutputGainCard = new SwitchCardView.DSwitchCard();
+        mLockOutputGainCard.setTitle(getString(R.string.lock_output_gain));
+        mLockOutputGainCard.setDescription(getString(R.string.lock_output_gain_summary));
+        mLockOutputGainCard.setChecked(Sound.isLockOutputGainActive());
+        mLockOutputGainCard.setOnDSwitchCardListener(this);
+
+        addView(mLockOutputGainCard);
+    }
+
+    private void lockMicGainInit() {
+        mLockMicGainCard = new SwitchCardView.DSwitchCard();
+        mLockMicGainCard.setTitle(getString(R.string.lock_mic_gain));
+        mLockMicGainCard.setDescription(getString(R.string.lock_mic_gain_summary));
+        mLockMicGainCard.setChecked(Sound.isLockMicGainActive());
+        mLockMicGainCard.setOnDSwitchCardListener(this);
+
+        addView(mLockMicGainCard);
     }
 
     private void highPerfModeEnableInit() {
@@ -143,6 +167,10 @@ public class SoundFragment extends RecyclerViewFragment implements
     public void onChecked(SwitchCardView.DSwitchCard dSwitchCard, boolean checked) {
         if (dSwitchCard == mSoundControlEnableCard)
             Sound.activateSoundControl(checked, getActivity());
+        else if (dSwitchCard == mLockOutputGainCard)
+            Sound.activateLockOutputGain(checked, getActivity());
+        else if (dSwitchCard == mLockMicGainCard)
+            Sound.activateLockMicGain(checked, getActivity());
         else if (dSwitchCard == mHighPerfModeEnableCard)
             Sound.activateHighPerfMode(checked, getActivity());
     }
