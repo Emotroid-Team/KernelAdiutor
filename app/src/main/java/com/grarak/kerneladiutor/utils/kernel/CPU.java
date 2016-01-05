@@ -407,7 +407,7 @@ public class CPU implements Constants {
     }
 
     public static int getHardMaxFreq(int core, boolean forceRead) {
-        if (forceRead && core > 0)
+        if (forceRead)
             while (!Utils.existFile(String.format(HARD_CPU_MAX_FREQ, core)))
                 activateCore(core, true, null);
         if (Utils.existFile(String.format(HARD_CPU_MAX_FREQ, core))) {
@@ -434,7 +434,7 @@ public class CPU implements Constants {
     }
 
     public static int getHardMinFreq(int core, boolean forceRead) {
-        if (forceRead && core > 0)
+        if (forceRead)
             while (!Utils.existFile(String.format(HARD_CPU_MIN_FREQ, core)))
                 activateCore(core, true, null);
         if (Utils.existFile(String.format(HARD_CPU_MIN_FREQ, core))) {
