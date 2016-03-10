@@ -347,6 +347,11 @@ public interface Constants {
     String GPU_SCALING_OMAP_GOVERNOR = "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/governor";
     String GPU_AVAILABLE_OMAP_GOVERNORS = "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/governor_list";
 
+    String GPU_CUR_TEGRA_FREQ = "/sys/kernel/tegra_gpu/gpu_rate";
+    String GPU_MAX_TEGRA_FREQ = "/sys/kernel/tegra_gpu/gpu_cap_rate";
+    String GPU_MIN_TEGRA_FREQ = "/sys/kernel/tegra_gpu/gpu_floor_rate";
+    String GPU_AVAILABLE_TEGRA_FREQS = "/sys/kernel/tegra_gpu/gpu_available_rates";
+
     String[] GPU_2D_CUR_FREQ_ARRAY = {GPU_CUR_KGSL2D0_QCOM_FREQ};
 
     String[] GPU_2D_MAX_FREQ_ARRAY = {GPU_MAX_KGSL2D0_QCOM_FREQ};
@@ -356,16 +361,16 @@ public interface Constants {
     String[] GPU_2D_SCALING_GOVERNOR_ARRAY = {GPU_SCALING_KGSL2D0_QCOM_GOVERNOR};
 
     String[] GPU_CUR_FREQ_ARRAY = {GPU_CUR_KGSL3D0_QCOM_FREQ, GPU_CUR_FDB00000_QCOM_FREQ, GPU_CUR_FDC00000_QCOM_FREQ,
-            GPU_CUR_SOC0_FDB00000_QCOM_FREQ, GPU_CUR_1C00000_QCOM_FREQ, GPU_CUR_OMAP_FREQ};
+            GPU_CUR_SOC0_FDB00000_QCOM_FREQ, GPU_CUR_1C00000_QCOM_FREQ, GPU_CUR_OMAP_FREQ, GPU_CUR_TEGRA_FREQ};
 
     String[] GPU_MAX_FREQ_ARRAY = {GPU_MAX_KGSL3D0_QCOM_FREQ, GPU_MAX_FDB00000_QCOM_FREQ, GPU_MAX_FDC00000_QCOM_FREQ,
-            GPU_MAX_SOC0_FDB00000_QCOM_FREQ, GPU_MAX_1C00000_QCOM_FREQ, GPU_MAX_OMAP_FREQ};
+            GPU_MAX_SOC0_FDB00000_QCOM_FREQ, GPU_MAX_1C00000_QCOM_FREQ, GPU_MAX_OMAP_FREQ, GPU_MAX_TEGRA_FREQ};
 
-    String[] GPU_MIN_FREQ_ARRAY = {GPU_MIN_FDB00000_QCOM_FREQ};
+    String[] GPU_MIN_FREQ_ARRAY = {GPU_MIN_FDB00000_QCOM_FREQ, GPU_MIN_TEGRA_FREQ};
 
     String[] GPU_AVAILABLE_FREQS_ARRAY = {GPU_AVAILABLE_KGSL3D0_QCOM_FREQS, GPU_AVAILABLE_FDB00000_QCOM_FREQS,
             GPU_AVAILABLE_SOC0_FDB00000_QCOM_FREQS, GPU_AVAILABLE_FDC00000_QCOM_FREQS, GPU_AVAILABLE_1C00000_QCOM_FREQ,
-            GPU_AVAILABLE_OMAP_FREQS};
+            GPU_AVAILABLE_OMAP_FREQS, GPU_AVAILABLE_TEGRA_FREQS};
 
     String[] GPU_SCALING_GOVERNOR_ARRAY = {GPU_SCALING_KGSL3D0_QCOM_GOVERNOR, GPU_SCALING_FDB00000_QCOM_GOVERNOR,
             GPU_SCALING_PWRSCALE_GOVERNOR, GPU_SCALING_FDC00000_QCOM_GOVERNOR, GPU_SCALING_SOC0_FDB00000_QCOM_GOVERNOR,
@@ -566,6 +571,11 @@ public interface Constants {
 
     // Pocket mode for Gesture
     String POCKET_MODE = "/sys/android_touch/pocket_mode";
+    String POCKET_DETECT = "/sys/android_touch/pocket_detect";
+
+    String[] POCKET_MODE_ARRAY = {
+            POCKET_MODE, POCKET_DETECT
+    };
 
     String WAKE_TIMEOUT = "/sys/android_touch/wake_timeout";
     String WAKE_TIMEOUT_2 = "/sys/android_touch2/wake_timeout";
@@ -577,7 +587,7 @@ public interface Constants {
     String POWER_KEY_SUSPEND = "/sys/module/qpnp_power_on/parameters/pwrkey_suspend";
 
     String[][] WAKE_ARRAY = {DT2W_ARRAY, S2W_ARRY, DT2S_ARRAY, WAKE_VIBRATION_ARRAY, T2W_ARRAY, WAKE_MISC_ARRAY, SLEEP_MISC_ARRAY, WAKE_TIMEOUT_ARRAY,
-            {LENIENT, GESTURE_CRTL, CAMERA_GESTURE, POCKET_MODE, POWER_KEY_SUSPEND}};
+            POCKET_MODE_ARRAY, {LENIENT, GESTURE_CRTL, CAMERA_GESTURE, POWER_KEY_SUSPEND}};=======
 
     // LED
     String LHC = "/sys/class/sec/led/led_highpower_current";
@@ -683,32 +693,20 @@ public interface Constants {
     // Misc
 
     // Vibration
-    String[] VIBRATION_ARRAY = {
-            "/sys/vibrator/pwmvalue",
-            "/sys/class/timed_output/vibrator/amp",
-            "/sys/class/timed_output/vibrator/level",
-            "/sys/class/timed_output/vibrator/vtg_level",
-            "/sys/devices/platform/tspdrv/nforce_timed",
-            "/sys/class/timed_output/vibrator/pwm_value",
-            "/sys/devices/i2c-3/3-0033/vibrator/vib0/vib_duty_cycle",
-            "/sys/devices/virtual/timed_output/vibrator/voltage_level",
-            "/sys/devices/virtual/timed_output/vibrator/pwm_value_1p",
-            "/sys/devices/virtual/timed_output/vibrator/vmax_mv_strong",
-            "/sys/devices/virtual/timed_output/vibrator/vmax_mv"
-    };
-
-    int[][] VIBRATION_MAX_MIN_ARRAY = {
-            {127, 0},
-            {100, 0},
-            {31, 12},
-            {31, 12}, // Read MAX MIN from sys
-            {127, 1},
-            {100, 0}, // Read MAX MIN from sys
-            {100, 25}, // Needs enable path
-            {3199, 1200},
-            {99, 53},
-            {3596, 116}, // Needs VIB_LIGHT path
-            {3596, 116}
+    Object[][] VIBRATION_ARRAY = {
+            // {Path, Max, Min}
+            {"/sys/class/timed_output/vibrator/amp", 100, 0},
+            {"/sys/class/timed_output/vibrator/level", 31, 12},
+            {"/sys/class/timed_output/vibrator/pwm_value", 100, 0}, // Read MAX MIN from sys
+            {"/sys/class/timed_output/vibrator/pwm_value_1p", 99, 53},
+            {"/sys/class/timed_output/vibrator/voltage_level", 3199, 1200},
+            {"/sys/class/timed_output/vibrator/vtg_level", 31, 12}, // Read MAX MIN from sys
+            {"/sys/class/timed_output/vibrator/vmax_mv", 3596, 116},
+            {"/sys/class/timed_output/vibrator/vmax_mv_strong", 3596, 116}, // Needs VIB_LIGHT path
+            {"/sys/devices/platform/tspdrv/nforce_timed", 127, 1},
+            {"/sys/devices/i2c-3/3-0033/vibrator/vib0/vib_duty_cycle", 100, 25}, // Needs enable path
+            {"/sys/module/qpnp_vibrator/parameters/vib_voltage", 31, 12},
+            {"/sys/vibrator/pwmvalue", 127, 0}
     };
 
     String VIB_LIGHT = "/sys/devices/virtual/timed_output/vibrator/vmax_mv_light";
@@ -774,10 +772,12 @@ public interface Constants {
     String TCP_AVAILABLE_CONGESTIONS = "/proc/sys/net/ipv4/tcp_available_congestion_control";
     String HOSTNAME_KEY = "net.hostname";
 
-    String[][] MISC_ARRAY = {{VIB_LIGHT, VIB_ENABLE, SENSOR_IND_WAKELOCK, MSM_HSIC_HOST_WAKELOCK, WLAN_RX_WAKELOCK_DIVIDER,
-            MSM_HSIC_WAKELOCK_DIVIDER, LOGGER_ENABLED, DYNAMIC_FSYNC, GENTLE_FAIR_SLEEPERS, POWER_SUSPEND_MODE,
-            POWER_SUSPEND_STATE, TCP_AVAILABLE_CONGESTIONS, HOSTNAME_KEY},
-            SMB135X_WAKELOCKS, WLAN_RX_WAKELOCKS, WLAN_CTRL_WAKELOCKS, WLAN_WAKELOCKS, VIBRATION_ARRAY, CRC_ARRAY, FSYNC_ARRAY};
+    Object[][] MISC_ARRAY = {
+            VIBRATION_ARRAY,
+            {VIB_LIGHT, VIB_ENABLE, SENSOR_IND_WAKELOCK, MSM_HSIC_HOST_WAKELOCK, WLAN_RX_WAKELOCK_DIVIDER,
+                    MSM_HSIC_WAKELOCK_DIVIDER, LOGGER_ENABLED, DYNAMIC_FSYNC, GENTLE_FAIR_SLEEPERS, POWER_SUSPEND_MODE,
+                    POWER_SUSPEND_STATE, TCP_AVAILABLE_CONGESTIONS, HOSTNAME_KEY},
+            SMB135X_WAKELOCKS, WLAN_RX_WAKELOCKS, WLAN_CTRL_WAKELOCKS, WLAN_WAKELOCKS, CRC_ARRAY, FSYNC_ARRAY};
 
     // Build prop
     String BUILD_PROP = "/system/build.prop";
