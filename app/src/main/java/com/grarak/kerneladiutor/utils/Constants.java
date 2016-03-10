@@ -587,7 +587,7 @@ public interface Constants {
     String POWER_KEY_SUSPEND = "/sys/module/qpnp_power_on/parameters/pwrkey_suspend";
 
     String[][] WAKE_ARRAY = {DT2W_ARRAY, S2W_ARRY, DT2S_ARRAY, WAKE_VIBRATION_ARRAY, T2W_ARRAY, WAKE_MISC_ARRAY, SLEEP_MISC_ARRAY, WAKE_TIMEOUT_ARRAY,
-            POCKET_MODE_ARRAY, {LENIENT, GESTURE_CRTL, CAMERA_GESTURE, POWER_KEY_SUSPEND}};=======
+            POCKET_MODE_ARRAY, {LENIENT, GESTURE_CRTL, CAMERA_GESTURE, POWER_KEY_SUSPEND}};
 
     // LED
     String LHC = "/sys/class/sec/led/led_highpower_current";
