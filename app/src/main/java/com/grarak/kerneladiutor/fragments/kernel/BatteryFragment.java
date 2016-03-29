@@ -24,6 +24,8 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 
 import com.grarak.kerneladiutor.R;
+import com.grarak.kerneladiutor.elements.DDivider;
+import com.grarak.kerneladiutor.elements.cards.PopupCardView;
 import com.grarak.kerneladiutor.elements.cards.CardViewItem;
 import com.grarak.kerneladiutor.elements.cards.SeekBarCardView;
 import com.grarak.kerneladiutor.elements.cards.SwitchCardView;
@@ -38,14 +40,19 @@ import java.util.List;
 /**
  * Created by willi on 03.01.15.
  */
-public class BatteryFragment extends RecyclerViewFragment implements
+public class BatteryFragment extends RecyclerViewFragment implements PopupCardView.DPopupCard.OnDPopupCardListener,
         SwitchCardView.DSwitchCard.OnDSwitchCardListener,
         SeekBarCardView.DSeekBarCard.OnDSeekBarCardListener {
 
     private UsageCardView.DUsageCard mBatteryLevelCard;
     private CardViewItem.DCardView mBatteryVoltageCard, mBatteryTemperature;
 
-    private SwitchCardView.DSwitchCard mForceFastChargeCard;
+    private PopupCardView.DPopupCard mForceFastChargeCard;
+    private SeekBarCardView.DSeekBarCard mAcLevelCard;
+    private SeekBarCardView.DSeekBarCard mUsbLevelCard;
+    private SwitchCardView.DSwitchCard mMtpCard;
+    private SwitchCardView.DSwitchCard mScreenOnCard;
+    private SwitchCardView.DSwitchCard mFailsafeCard;
 
     private SeekBarCardView.DSeekBarCard mBlxCard;
 
@@ -60,6 +67,11 @@ public class BatteryFragment extends RecyclerViewFragment implements
         batteryVoltageInit();
         batteryTemperatureInit();
         if (Battery.hasForceFastCharge()) forceFastChargeInit();
+        if (Battery.hasAcLevel()) acLevelInit();
+        if (Battery.hasUsbLevel()) usbLevelInit();
+        if (Battery.hasMtp()) mtpInit();
+        if (Battery.hasScreenOn()) screenOnInit();
+        if (Battery.hasFailsafe()) failsafeInit();
         if (Battery.hasBlx()) blxInit();
         if (Battery.hasChargeRate()) chargerateInit();
 
@@ -97,13 +109,83 @@ public class BatteryFragment extends RecyclerViewFragment implements
     }
 
     private void forceFastChargeInit() {
-        mForceFastChargeCard = new SwitchCardView.DSwitchCard();
+        DDivider mChargeDivider = new DDivider();
+        mChargeDivider.setText(getString(R.string.usb_charge));
+
+        addView(mChargeDivider);
+        mForceFastChargeCard = new PopupCardView.DPopupCard(Battery.getForceFastChargeMenu(getActivity()));
         mForceFastChargeCard.setTitle(getString(R.string.usb_fast_charge));
         mForceFastChargeCard.setDescription(getString(R.string.usb_fast_charge_summary));
-        mForceFastChargeCard.setChecked(Battery.isForceFastChargeActive());
-        mForceFastChargeCard.setOnDSwitchCardListener(this);
+        mForceFastChargeCard.setItem(Battery.getForceFastChargeValue());
+        mForceFastChargeCard.setOnDPopupCardListener(this);
 
         addView(mForceFastChargeCard);
+    }
+
+    private void acLevelInit() {
+        List<String> list = new ArrayList<>();
+        for (int i = 10; i < 22; i++)
+            list.add((i * 100) + getString(R.string.ma));
+
+        mAcLevelCard = new SeekBarCardView.DSeekBarCard(list);
+        mAcLevelCard.setTitle(getString(R.string.ac_level));
+        mAcLevelCard.setDescription(getString(R.string.ac_level_summary));
+        mAcLevelCard.setProgress((Battery.getAcLevel() /100) - 10);
+        mAcLevelCard.setOnDSeekBarCardListener(this);
+
+        addView(mAcLevelCard);
+    }
+
+    private void usbLevelInit() {
+        List<String> list = new ArrayList<>();
+            list.add(String.valueOf(460) + getString(R.string.ma));
+        for (int i = 5; i < 11; i++)
+            list.add((i * 100) + getString(R.string.ma));
+
+        mUsbLevelCard = new SeekBarCardView.DSeekBarCard(list);
+        mUsbLevelCard.setTitle(getString(R.string.usb_level));
+        mUsbLevelCard.setDescription(getString(R.string.usb_level_summary));
+        mUsbLevelCard.setProgress(Battery.getUsbLevel());
+        mUsbLevelCard.setOnDSeekBarCardListener(this);
+
+        addView(mUsbLevelCard);
+    }
+
+    private void mtpInit() {
+        DDivider mMtpDivider = new DDivider();
+        mMtpDivider.setText(getString(R.string.misc_charge));
+
+        addView(mMtpDivider);
+
+        mMtpCard = new SwitchCardView.DSwitchCard();
+        mMtpCard.setTitle(getString(R.string.use_mtp));
+        mMtpCard.setDescription(getString(R.string.use_mtp_summary));
+        mMtpCard.setChecked(Battery.isMtpActive());
+        mMtpCard.setOnDSwitchCardListener(this);
+
+        addView(mMtpCard);
+    }
+
+    private void screenOnInit() {
+
+        mScreenOnCard = new SwitchCardView.DSwitchCard();
+        mScreenOnCard.setTitle(getString(R.string.screen_on));
+        mScreenOnCard.setDescription(getString(R.string.screen_on_summary));
+        mScreenOnCard.setChecked(Battery.isScreenOnActive());
+        mScreenOnCard.setOnDSwitchCardListener(this);
+
+        addView(mScreenOnCard);
+    }
+
+    private void failsafeInit() {
+
+        mFailsafeCard = new SwitchCardView.DSwitchCard();
+        mFailsafeCard.setTitle(getString(R.string.failsafe));
+        mFailsafeCard.setDescription(getString(R.string.failsafe_summary));
+        mFailsafeCard.setChecked(Battery.isFailsafeActive());
+        mFailsafeCard.setOnDSwitchCardListener(this);
+
+        addView(mFailsafeCard);
     }
 
     private void blxInit() {
@@ -163,10 +245,19 @@ public class BatteryFragment extends RecyclerViewFragment implements
 
     @Override
     public void onChecked(SwitchCardView.DSwitchCard dSwitchCard, boolean checked) {
-        if (dSwitchCard == mForceFastChargeCard)
-            Battery.activateForceFastCharge(checked, getActivity());
-        else if (dSwitchCard == mCustomChargeRateEnableCard)
+        if (dSwitchCard == mCustomChargeRateEnableCard)
             Battery.activateCustomChargeRate(checked, getActivity());
+        else if (dSwitchCard == mMtpCard)
+            Battery.activateMtp(checked, getActivity());
+        else if (dSwitchCard == mScreenOnCard)
+            Battery.activateScreenOn(checked, getActivity());
+        else if (dSwitchCard == mFailsafeCard)
+            Battery.activateFailsafe(checked, getActivity());
+    }
+
+    @Override
+    public void onItemSelected(PopupCardView.DPopupCard dPopupCard, int position) {
+        if (dPopupCard == mForceFastChargeCard) Battery.setForceFastCharge(position, getActivity());
     }
 
     @Override
@@ -179,6 +270,37 @@ public class BatteryFragment extends RecyclerViewFragment implements
             Battery.setBlx(position, getActivity());
         else if (dSeekBarCard == mChargingRateCard)
             Battery.setChargingRate((position * 10) + 100, getActivity());
+        else if (dSeekBarCard == mAcLevelCard) Battery.setAcLevel((position * 100) + 1000, getActivity());
+        else if (dSeekBarCard == mUsbLevelCard) Battery.setUsbLevel(position_translate(position), getActivity());
+    }
+
+    private Integer position_translate(Integer position){		
+        Integer result = 0;		
+        switch (position){		
+            case 0:		
+                result = 460;		
+                break;		
+            case 1:		
+                result = 500;		
+                break;		
+            case 2:		
+                result = 600;		
+                break;		
+            case 3:		
+                result = 700;		
+                break;		
+            case 4:		
+                result = 800;		
+                break;		
+            case 5:		
+                result = 900;		
+                break;		
+            case 6:		
+                result = 1000;		
+                break;			
+        }		
+        return result;		
+		
     }
 
     @Override

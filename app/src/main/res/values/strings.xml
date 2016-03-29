@@ -509,6 +509,7 @@
     <string name="battery_voltage">Battery Voltage</string>
     <string name="battery_level">Battery Level</string>
     <string name="battery_temperature">Battery Temperature</string>
+    <string name="usb_charge">Charge Settings</string>
     <string name="usb_fast_charge">USB Fast Charge</string>
     <string name="usb_fast_charge_summary">Device will charge faster when connected with USB. Replug your charger when changing this option.</string>
     <string name="blx">Battery Life eXtender</string>
@@ -516,6 +517,18 @@
     <string name="custom_charge_rate">Charge Rate</string>
     <string name="charge_rate">Battery Charging Rate</string>
     <string name="charge_rate_summary">Set Custom Battery Charge Rate. Caution: Exceeding 1250mA may damage your charging driver.</string>
+    <string name="custom_enabled">Custom</string>
+    <string name="ac_level">AC charge levels</string>
+    <string name="ac_level_summary">Set Custom AC charge level</string>
+    <string name="usb_level">USB charge levels</string>
+    <string name="usb_level_summary">Set Custom USB charge level</string>
+    <string name="misc_charge">Misc Charge Settings</string>
+    <string name="use_mtp">MTP</string>
+    <string name="use_mtp_summary">Use MTP during fast charge</string>
+    <string name="screen_on">Screen ON current limit</string>
+    <string name="screen_on_summary">Charging limit while it is charging</string>
+    <string name="failsafe">Failsafe</string>
+    <string name="failsafe_summary">If disabled you allow anything up to 2.1A/h to be used as AC / USB custom current. - DISABLE AT YOUR OWN RISK</string>    
 
     <!-- I/O Scheduler -->
     <string name="internal_storage">Internal Storage</string>

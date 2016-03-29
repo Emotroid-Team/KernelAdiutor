@@ -623,13 +623,18 @@ public interface Constants {
 
     // Battery
     String FORCE_FAST_CHARGE = "/sys/kernel/fast_charge/force_fast_charge";
+    String AC_LEVEL = "/sys/kernel/fast_charge/ac_charge_level";
+    String USB_LEVEL = "/sys/kernel/fast_charge/usb_charge_level";
+    String MTP = "/sys/kernel/fast_charge/use_mtp_during_fast_charge";
+    String SCREEN_ON = "/sys/kernel/fast_charge/screen_on_current_limit";
+    String FAILSAFE = "/sys/kernel/fast_charge/failsafe";
     String BLX = "/sys/devices/virtual/misc/batterylifeextender/charging_limit";
 
     String CHARGE_RATE = "sys/kernel/thundercharge_control";
     String CHARGE_RATE_ENABLE = CHARGE_RATE + "/enabled";
     String CUSTOM_CHARGING_RATE = CHARGE_RATE + "/custom_current";
 
-    String[] BATTERY_ARRAY = {FORCE_FAST_CHARGE, BLX, CHARGE_RATE};
+    String[] BATTERY_ARRAY = {FORCE_FAST_CHARGE, AC_LEVEL, USB_LEVEL, MTP, SCREEN_ON, FAILSAFE, BLX, CHARGE_RATE};
 
     // I/O
     String IO_INTERNAL_SCHEDULER = "/sys/block/mmcblk0/queue/scheduler";
