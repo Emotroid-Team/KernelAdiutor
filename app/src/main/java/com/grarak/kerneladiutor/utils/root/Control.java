@@ -29,13 +29,16 @@ import com.kerneladiutor.library.root.RootUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.*;
+
+
 /**
  * Created by willi on 14.12.14.
  */
 public class Control implements Constants {
 
     public enum CommandType {
-        GENERIC, CPU, CPU_LITTLE, FAUX_GENERIC, CUSTOM
+        GENERIC, CPU, CPU_LITTLE, FAUX_GENERIC, FAUX_GENERIC_DOUBLE, CUSTOM
     }
 
     public static void commandSaver(final Context context, final String path, final String command) {
@@ -62,6 +65,13 @@ public class Control implements Constants {
         return 255 & (Integer.MAX_VALUE ^ (arg1 & 255) + (arg2 & 255));
     }
 
+    private static int getChecksumfaux(int arg1, int arg2) {
+        int addval = arg1 + arg2;
+        int checksum = 255 - addval;
+
+        return checksum;
+    }
+
     private static void setPermission(String file, int permission, Context context) {
         run("chmod " + permission + " " + file, file + "permission" + permission, context);
     }
@@ -70,9 +80,35 @@ public class Control implements Constants {
         run("echo " + value + " > " + file, id != null ? file + id : file, context);
     }
 
+    private static void runFauxGenericDouble(String file, String value, Context context) {
+        int vl = Utils.stringToInt(value.split(" ")[0]);
+        int vr = Utils.stringToInt(value.split(" ")[1]);
+        int checksum = getChecksumfaux(vl,vr);
+
+        if (checksum > 255) {
+            checksum = checksum - 256;
+            vl = vl + 256;
+            vr = vr + 256;
+        }
+
+        String command = vl + " " + vr + " " + checksum;
+
+
+        run("echo " + value + " > " + file, file + "nochecksum", context);
+        run("echo " + command + " > " + file, file, context);
+    }
+
     private static void runFauxGeneric(String file, String value, Context context) {
-        String command = value.contains(" ") ? value + " " + getChecksum(Utils.stringToInt(value.split(" ")[0]),
-                Utils.stringToInt(value.split(" ")[1])) : value + " " + getChecksum(Utils.stringToInt(value), 0);
+        int val = Utils.stringToInt(value);
+        int checksum = getChecksumfaux(val,0);
+
+        if (checksum > 255) {
+            checksum = checksum - 256;
+            val = val + 256;
+        }
+
+        String command = val + " " + checksum;
+                ;
         run("echo " + value + " > " + file, file + "nochecksum", context);
         run("echo " + command + " > " + file, file, context);
     }
@@ -110,11 +146,11 @@ public class Control implements Constants {
                     List<Integer> range = command == CommandType.CPU ? CPU.getBigCoreRange() : CPU.getLITTLECoreRange();
                     for (int i = 0; i < range.size(); i++) {
                         if (i != 0)
-                            Control.run(String.format("echo 1 > " + CPU_CORE_ONLINE, i),
-                                    String.format(CPU_CORE_ONLINE, i) + "cpuonline", context);
-                        setPermission(String.format(file, range.get(i)), 644, context);
-                        runGeneric(String.format(file, range.get(i)), value, id, context);
-                        setPermission(String.format(file, range.get(i)), 444, context);
+                            Control.run(format("echo 1 > " + CPU_CORE_ONLINE, i),
+                                    format(CPU_CORE_ONLINE, i) + "cpuonline", context);
+                        setPermission(format(file, range.get(i)), 644, context);
+                        runGeneric(format(file, range.get(i)), value, id, context);
+                        setPermission(format(file, range.get(i)), 444, context);
                     }
 
                     if (mpd) startService(HOTPLUG_MPDEC, null);
@@ -122,6 +158,8 @@ public class Control implements Constants {
                     runGeneric(file, value, id, context);
                 } else if (command == CommandType.FAUX_GENERIC) {
                     runFauxGeneric(file, value, context);
+                } else if (command == CommandType.FAUX_GENERIC_DOUBLE) {
+                    runFauxGenericDouble(file, value, context);
                 } else if (command == CommandType.CUSTOM) {
                     Control.run(value, id == null ? file : file + id, context);
                 }

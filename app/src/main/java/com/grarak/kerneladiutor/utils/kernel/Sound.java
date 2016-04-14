@@ -85,13 +85,17 @@ public class Sound implements Constants {
 
     public static void setSpeakerGain(String value, Context context) {
         Control.runCommand(value + " " + value, SPEAKER_GAIN_FILE,
-                SPEAKER_GAIN_FILE.equals(SPEAKER_GAIN) ? Control.CommandType.FAUX_GENERIC : Control.CommandType.GENERIC, context);
+                SPEAKER_GAIN_FILE.equals(SPEAKER_GAIN) ? Control.CommandType.FAUX_GENERIC_DOUBLE : Control.CommandType.GENERIC, context);
     }
 
     public static String getCurSpeakerGain() {
         switch (SPEAKER_GAIN_FILE) {
             case SPEAKER_GAIN:
-                return Utils.readFile(SPEAKER_GAIN).split(" ")[0];
+                int value = Utils.stringToInt(Utils.readFile(SPEAKER_GAIN).split(" ")[0]);
+                if (value > 50) {
+                    value = -1 *(256 - value);
+                }
+                return String.valueOf(value);
             case SPEAKER_BOOST:
                 return Utils.readFile(SPEAKER_BOOST);
         }
@@ -129,7 +133,11 @@ public class Sound implements Constants {
     }
 
     public static String getCurCamMicrophoneGain() {
-        return Utils.readFile(CAM_MICROPHONE_GAIN);
+        int value = Utils.stringToInt(Utils.readFile(CAM_MICROPHONE_GAIN));
+        if (value > 50) {
+            value = -1 *(256 - value);
+        }
+        return String.valueOf(value);
     }
 
     public static List<String> getCamMicrophoneGainLimits() {
@@ -145,7 +153,11 @@ public class Sound implements Constants {
     }
 
     public static String getCurHandsetMicrophoneGain() {
-        return Utils.readFile(HANDSET_MICROPONE_GAIN);
+        int value = Utils.stringToInt(Utils.readFile(HANDSET_MICROPONE_GAIN));
+        if (value > 50) {
+            value = -1 *(256 - value);
+        }
+        return String.valueOf(value);
     }
 
     public static List<String> getHandsetMicrophoneGainLimits() {
@@ -157,11 +169,15 @@ public class Sound implements Constants {
     }
 
     public static void setHeadphoneGain(String value, Context context) {
-        Control.runCommand(value + " " + value, HEADPHONE_GAIN, Control.CommandType.FAUX_GENERIC, context);
+        Control.runCommand(value + " " + value, HEADPHONE_GAIN, Control.CommandType.FAUX_GENERIC_DOUBLE, context);
     }
 
     public static String getCurHeadphoneGain() {
-        return Utils.readFile(HEADPHONE_GAIN).split(" ")[0];
+        int value = Utils.stringToInt(Utils.readFile(HEADPHONE_GAIN).split(" ")[0]);
+        if (value > 50) {
+            value = -1 *(256 - value);
+        }
+        return String.valueOf(value);
     }
 
     public static List<String> getHeadphoneGainLimits() {
