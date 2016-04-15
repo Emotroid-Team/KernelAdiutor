@@ -83,7 +83,7 @@ public class Control implements Constants {
     private static void runFauxGenericDouble(String file, String value, Context context) {
         int vl = Utils.stringToInt(value.split(" ")[0]);
         int vr = Utils.stringToInt(value.split(" ")[1]);
-        int checksum = getChecksumfaux(vl,vr);
+        int checksum = getChecksumfaux(vl, vr);
 
         if (checksum > 255) {
             checksum = checksum - 256;
@@ -93,14 +93,12 @@ public class Control implements Constants {
 
         String command = vl + " " + vr + " " + checksum;
 
-
         run("echo " + value + " > " + file, file + "nochecksum", context);
         run("echo " + command + " > " + file, file, context);
     }
-
     private static void runFauxGeneric(String file, String value, Context context) {
         int val = Utils.stringToInt(value);
-        int checksum = getChecksumfaux(val,0);
+        int checksum = getChecksumfaux(val, 0);
 
         if (checksum > 255) {
             checksum = checksum - 256;
@@ -108,7 +106,7 @@ public class Control implements Constants {
         }
 
         String command = val + " " + checksum;
-                ;
+
         run("echo " + value + " > " + file, file + "nochecksum", context);
         run("echo " + command + " > " + file, file, context);
     }

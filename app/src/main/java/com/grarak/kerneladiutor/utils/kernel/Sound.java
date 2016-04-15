@@ -84,8 +84,21 @@ public class Sound implements Constants {
     }
 
     public static void setSpeakerGain(String value, Context context) {
+        boolean lock = isLockOutputGainActive();
+        if (SPEAKER_GAIN_FILE.equals(SPEAKER_GAIN)){
+            if (lock){
+                Control.runCommand("0", LOCK_OUTPUT_GAIN, Control.CommandType.GENERIC, context);
+            }
+        }
+
         Control.runCommand(value + " " + value, SPEAKER_GAIN_FILE,
                 SPEAKER_GAIN_FILE.equals(SPEAKER_GAIN) ? Control.CommandType.FAUX_GENERIC_DOUBLE : Control.CommandType.GENERIC, context);
+
+        if (SPEAKER_GAIN_FILE.equals(SPEAKER_GAIN)){
+            if (lock){
+                Control.runCommand("1", LOCK_OUTPUT_GAIN, Control.CommandType.GENERIC, context);
+            }
+        }
     }
 
     public static String getCurSpeakerGain() {
@@ -129,7 +142,17 @@ public class Sound implements Constants {
     }
 
     public static void setCamMicrophoneGain(String value, Context context) {
+        boolean lock = isLockMicGainActive();
+
+        if (lock){
+            Control.runCommand("0", LOCK_MIC_GAIN, Control.CommandType.GENERIC, context);
+        }
+
         Control.runCommand(value, CAM_MICROPHONE_GAIN, Control.CommandType.FAUX_GENERIC, context);
+
+        if (lock){
+            Control.runCommand("1", LOCK_MIC_GAIN, Control.CommandType.GENERIC, context);
+        }
     }
 
     public static String getCurCamMicrophoneGain() {
@@ -149,7 +172,17 @@ public class Sound implements Constants {
     }
 
     public static void setHandsetMicrophoneGain(String value, Context context) {
+        boolean lock = isLockMicGainActive();
+
+        if (lock){
+            Control.runCommand("0", LOCK_MIC_GAIN, Control.CommandType.GENERIC, context);
+        }
+
         Control.runCommand(value, HANDSET_MICROPONE_GAIN, Control.CommandType.FAUX_GENERIC, context);
+
+        if (lock){
+            Control.runCommand("1", LOCK_MIC_GAIN, Control.CommandType.GENERIC, context);
+        }
     }
 
     public static String getCurHandsetMicrophoneGain() {
@@ -169,7 +202,17 @@ public class Sound implements Constants {
     }
 
     public static void setHeadphoneGain(String value, Context context) {
+        boolean lock = isLockOutputGainActive();
+
+        if (lock){
+            Control.runCommand("0", LOCK_OUTPUT_GAIN, Control.CommandType.GENERIC, context);
+        }
+
         Control.runCommand(value + " " + value, HEADPHONE_GAIN, Control.CommandType.FAUX_GENERIC_DOUBLE, context);
+
+        if (lock){
+            Control.runCommand("1", LOCK_OUTPUT_GAIN, Control.CommandType.GENERIC, context);
+        }
     }
 
     public static String getCurHeadphoneGain() {
