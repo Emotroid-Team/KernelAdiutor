@@ -7,6 +7,7 @@
     <string name="collecting_info">Collecting info</string>
     <string name="no_root">No root</string>
     <string name="no_busybox">No busybox</string>
+    <string name="open">Open %s</string>
 
     <!-- Security -->
     <string name="password">Password</string>
@@ -790,6 +791,7 @@
     <string name="disable_question">Disable %s?</string>
 
     <!-- Settings -->
+    <string name="open_settings">Open Settings</string>
     <string name="fahrenheit_title">Fahrenheit</string>
     <string name="fahrenheit_summary">Use fahrenheit to measure temperature.</string>
     <string name="force_english">Force displaying english language</string>
@@ -801,6 +803,8 @@
     <string name="force_cards">Force cards</string>
     <string name="force_cards_summary">Use cards for items if possible.</string>
     <string name="accent_color">Accent Color</string>
+    <string name="section_icons">Section Icons</string>
+    <string name="section_icons_summary">Show icons for each section in navigation drawer.</string>
     <string name="instant">Instant</string>
     <string name="five_sec">5 seconds</string>
     <string name="ten_sec">10 seconds</string>

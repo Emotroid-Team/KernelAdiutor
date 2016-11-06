@@ -25,9 +25,12 @@ import com.grarak.kerneladiutor.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by willi on 30.12.15.
@@ -81,6 +84,8 @@ public class RootUtils {
     public static void mount(boolean writeable, String mountpoint, SU su) {
         su.runCommand(writeable ? "mount -o remount,rw " + mountpoint + " " + mountpoint :
                 "mount -o remount,ro " + mountpoint + " " + mountpoint);
+        su.runCommand(writeable ? "mount -o remount,rw " + mountpoint :
+                "mount -o remount,ro " + mountpoint);
     }
 
     public static String runScript(String text, String... arguments) {
@@ -99,6 +104,10 @@ public class RootUtils {
         return getSU().runCommand(command);
     }
 
+    public static boolean SUClosed() {
+        return su == null || su.closed;
+    }
+
     public static SU getSU() {
         if (su == null || su.closed || su.denied) {
             if (su != null && !su.closed) {
@@ -115,30 +124,32 @@ public class RootUtils {
      */
     public static class SU {
 
-        private Process process;
-        private BufferedWriter bufferedWriter;
-        private BufferedReader bufferedReader;
-        private final boolean root;
+        private Process mProcess;
+        private BufferedWriter mWriter;
+        private BufferedReader mReader;
+        private final boolean mRoot;
         private final String mTag;
         private boolean closed;
         private boolean denied;
         private boolean firstTry;
+        private File mLogFile;
 
         public SU() {
             this(true, null);
         }
 
         public SU(boolean root, String tag) {
-            this.root = root;
+            mRoot = root;
             mTag = tag;
             try {
                 if (mTag != null) {
-                    Log.i(mTag, root ? "SU initialized" : "SH initialized");
+                    Log.i(mTag, String.format("%s initialized", root ? "SU" : "SH"));
                 }
                 firstTry = true;
-                process = Runtime.getRuntime().exec(root ? "su" : "sh");
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-                bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                mProcess = Runtime.getRuntime().exec(root ? "su" : "sh");
+                mWriter = new BufferedWriter(new OutputStreamWriter(mProcess.getOutputStream()));
+                mReader = new BufferedReader(new InputStreamReader(mProcess.getInputStream()));
+                mLogFile = new File(Utils.getInternalDataStorage() + "/log.txt");
             } catch (IOException e) {
                 if (mTag != null) {
                     Log.e(mTag, root ? "Failed to run shell as su" : "Failed to run shell as sh");
@@ -153,13 +164,13 @@ public class RootUtils {
                 try {
                     StringBuilder sb = new StringBuilder();
                     String callback = "/shellCallback/";
-                    bufferedWriter.write(command + "\necho " + callback + "\n");
-                    bufferedWriter.flush();
+                    mWriter.write(command + "\necho " + callback + "\n");
+                    mWriter.flush();
 
                     int i;
                     char[] buffer = new char[256];
                     while (true) {
-                        sb.append(buffer, 0, bufferedReader.read(buffer));
+                        sb.append(buffer, 0, mReader.read(buffer));
                         if ((i = sb.indexOf(callback)) > -1) {
                             sb.delete(i, i + callback.length());
                             break;
@@ -169,6 +180,8 @@ public class RootUtils {
                     if (mTag != null) {
                         Log.i(mTag, "run: " + command + " output: " + sb.toString().trim());
                     }
+                    logFile(command + ": " + sb.toString().trim());
+
                     return sb.toString().trim();
                 } catch (IOException e) {
                     closed = true;
@@ -184,20 +197,39 @@ public class RootUtils {
             }
         }
 
+        private void logFile(String log) {
+            if (mLogFile.length() / 1024 / 1024 > 1) {
+                mLogFile.delete();
+            }
+            Utils.writeFile(mLogFile.toString(),
+                    new SimpleDateFormat("dd-MM-yy HH:mm:ss").format(new Date()) + ": " + log + "\n",
+                    true, false);
+        }
+
         public void close() {
             try {
-                bufferedWriter.write("exit\n");
-                bufferedWriter.flush();
+                if (mWriter != null) {
+                    mWriter.write("exit\n");
+                    mWriter.flush();
 
-                process.waitFor();
-                if (mTag != null) {
-                    Log.i(mTag, root ? "SU closed: " + process.exitValue() : "SH closed: "
-                            + process.exitValue());
+                    mWriter.close();
                 }
-                closed = true;
-            } catch (Exception e) {
+                mReader.close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            try {
+                mProcess.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            mProcess.destroy();
+            if (mTag != null) {
+                Log.i(mTag, String.format("%s closed: %d", mRoot ? "SU" : "SH", mProcess.exitValue()));
+            }
+            closed = true;
         }
 
     }

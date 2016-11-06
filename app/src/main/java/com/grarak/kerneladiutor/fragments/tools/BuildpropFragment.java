@@ -19,6 +19,7 @@
  */
 package com.grarak.kerneladiutor.fragments.tools;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -82,6 +83,11 @@ public class BuildpropFragment extends RecyclerViewFragment {
     }
 
     @Override
+    protected boolean showAd() {
+        return false;
+    }
+
+    @Override
     protected void init() {
         super.init();
 
@@ -136,14 +142,6 @@ public class BuildpropFragment extends RecyclerViewFragment {
         load(items);
     }
 
-    @Override
-    protected void postInit() {
-        super.postInit();
-        if (mSearchFragment != null) {
-            mSearchFragment.setCount(itemsSize());
-        }
-    }
-
     private void reload(final boolean read) {
         if (mLoader == null) {
             getHandler().postDelayed(new Runnable() {
@@ -174,9 +172,6 @@ public class BuildpropFragment extends RecyclerViewFragment {
                                 addItem(item);
                             }
                             hideProgress();
-                            if (mSearchFragment != null) {
-                                mSearchFragment.setCount(itemsSize());
-                            }
                             mLoader = null;
                         }
                     };
@@ -186,7 +181,7 @@ public class BuildpropFragment extends RecyclerViewFragment {
         }
     }
 
-    private void load(List<RecyclerViewItem> items) {
+    private void load(final List<RecyclerViewItem> items) {
         if (mProps == null) return;
         String[] titles = mProps.keySet().toArray(new String[mProps.size()]);
         for (int i = 0; i < mProps.size(); i++) {
@@ -196,16 +191,23 @@ public class BuildpropFragment extends RecyclerViewFragment {
                     || (mValueText != null && !value.contains(mValueText)))) {
                 continue;
             }
+
+            int color = ViewUtils.getThemeAccentColor(getActivity());
+            String colorCode = "#"
+                    + Integer.toHexString(Color.red(color))
+                    + Integer.toHexString(Color.green(color))
+                    + Integer.toHexString(Color.blue(color));
+
             DescriptionView descriptionView = new DescriptionView();
             if (mKeyText != null && !mKeyText.isEmpty()) {
                 descriptionView.setTitle(Utils.htmlFrom(title.replace(mKeyText,
-                        "<b><font color=\"#ff4081\">" + mKeyText + "</font></b>")));
+                        "<b><font color=\"" + colorCode + "\">" + mKeyText + "</font></b>")));
             } else {
                 descriptionView.setTitle(title);
             }
             if (mValueText != null && !mValueText.isEmpty()) {
                 descriptionView.setSummary(Utils.htmlFrom(value.replace(mValueText,
-                        "<b><font color=\"#ff4081\">" + mValueText + "</font></b>")));
+                        "<b><font color=\"" + colorCode + "\">" + mKeyText + "</font></b>")));
             } else {
                 descriptionView.setSummary(value);
             }
@@ -237,6 +239,18 @@ public class BuildpropFragment extends RecyclerViewFragment {
             });
 
             items.add(descriptionView);
+        }
+
+        Activity activity;
+        if (mSearchFragment != null && (activity = getActivity()) != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (isAdded()) {
+                        mSearchFragment.setCount(items.size());
+                    }
+                }
+            });
         }
     }
 

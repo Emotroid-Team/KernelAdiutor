@@ -22,14 +22,14 @@ package com.grarak.kerneladiutor.views.recyclerview;
 import android.view.View;
 
 import com.grarak.kerneladiutor.R;
-import com.grarak.kerneladiutor.views.AdBanner;
+import com.grarak.kerneladiutor.views.AdNativeExpress;
 
 /**
  * Created by willi on 06.08.16.
  */
 public class AdView extends RecyclerViewItem {
 
-    private AdBanner mAd;
+    private AdNativeExpress mAd;
 
     @Override
     public int getLayoutRes() {
@@ -38,7 +38,7 @@ public class AdView extends RecyclerViewItem {
 
     @Override
     public void onCreateView(View view) {
-        mAd = (AdBanner) view;
+        mAd = (AdNativeExpress) view;
         setFullSpan(true);
         super.onCreateView(view);
     }
@@ -55,7 +55,27 @@ public class AdView extends RecyclerViewItem {
     }
 
     @Override
-    protected boolean cacheable() {
-        return true;
+    public void onResume() {
+        super.onResume();
+        if (mAd != null) {
+            mAd.resume();
+        }
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mAd != null) {
+            mAd.pause();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mAd != null) {
+            mAd.destroy();
+        }
+    }
+
 }

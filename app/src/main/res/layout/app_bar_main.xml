@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary"
     android:theme="@style/AppTheme.AppBarOverlay"
-    app:elevation="0dp">
+    app:elevation="@dimen/app_bar_elevation">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -15,5 +15,4 @@
         app:contentInsetLeft="72dp"
         app:contentInsetStart="72dp"
         app:popupTheme="@style/AppTheme.PopupOverlay" />
-
 </android.support.design.widget.AppBarLayout>
