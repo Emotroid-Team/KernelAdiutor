@@ -29,7 +29,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +39,7 @@ import com.grarak.kerneladiutor.R;
 import com.grarak.kerneladiutor.utils.Prefs;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.ViewUtils;
+import com.grarak.kerneladiutor.views.dialog.Dialog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,7 +104,7 @@ public class NavHeaderView extends LinearLayout {
         findViewById(R.id.nav_header_fab).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                new AlertDialog.Builder(context).setItems(v.getResources()
+                new Dialog(context).setItems(v.getResources()
                         .getStringArray(R.array.main_header_picture_items), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

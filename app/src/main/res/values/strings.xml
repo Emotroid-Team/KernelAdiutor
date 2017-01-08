@@ -21,7 +21,7 @@
     <string name="ok">OK</string>
     <string name="unknown">Unknown</string>
 
-    <string name="license_invalid">Thanks for purchasing the donation app! Unfortunately license check failed. Please try again later. If it\'s still not working, please contact me.</string>
+    <string name="license_invalid">Thanks for purchasing the donation app! Unfortunately license check failed. Please try again later. If it\'s still not working, please contact me. You need internet access!</string>
     <string name="pirated">Seems like the donation app wasn\'t purchased through Play Store! If you pirated it, then shame on you!</string>
     <string name="donate">Donate</string>
     <string name="donate_summary">This feature is only available when the donation app is installed! Don\'t worry though. Because this app is open source you can easily build it yourself and remove this check. But I hope you support developers anyway. Thanks for using Kernel Adiutor! Once you bought the donation app you have to restart Kernel Adiutor in order to enable all features.</string>
@@ -96,6 +96,7 @@
     <string name="virtual_memory">Virtual Memory</string>
     <string name="entropy">Entropy</string>
     <string name="misc">Misc</string>
+    <string name="data_sharing">Data Sharing</string>
     <string name="custom_controls">Custom Controls</string>
     <string name="downloads">Downloads</string>
     <string name="backup">Backup</string>
@@ -150,6 +151,7 @@
     <!-- CPU -->
     <string name="cores_singular">%d core</string>
     <string name="cores">%d cores</string>
+    <string name="cpu_usage">CPU Usage</string>
     <string name="no_offline_core">You can\'t offline this core!</string>
     <string name="cpu_max_freq">CPU Maximum Frequency</string>
     <string name="cpu_max_freq_summary">Set the maximum frequency the CPU scales up to.</string>
@@ -511,6 +513,7 @@
     <string name="area">Area</string>
     <string name="width">Width</string>
     <string name="height">Height</string>
+    <string name="vibration">Vibration</string>
     <string name="vibration_strength">Vibration Strength</string>
 
     <!-- Sound -->
@@ -673,6 +676,9 @@
     <string name="wlan_rx_wakelock_divider">wlan_rx Wakelock Divider</string>
     <string name="msm_hsic_wakelock_divider">msm_hsic Wakelock Divider</string>
     <string name="bcmdhd_wakelock_divider">BCMDHD Wakelock Divider</string>
+
+    <!-- Data Sharing -->
+    <string name="data_sharing_summary">Since a lot of people struggle to find suitable settings for their device and need guidance by more advanced users, I came up with this.\n\nThis feature will collect settings of the more advanced users and then measure cpu and battery performance. The best settings for each chipset will be available to all people afterwards. This application won\'t collect any personal data!</string>
 
     <!-- Custom Controls -->
     <string name="welcome">Welcome</string>

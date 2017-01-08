@@ -19,12 +19,13 @@
  */
 package com.grarak.kerneladiutor.views.recyclerview;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import com.grarak.kerneladiutor.R;
+import com.grarak.kerneladiutor.views.dialog.Dialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,17 +41,22 @@ public class SelectView extends ValueView {
 
     private View mView;
     private OnItemSelected mOnItemSelected;
-    private AlertDialog.Builder mDialog;
+    private Dialog mDialog;
     private List<String> mItems = new ArrayList<>();
+
+    @Override
+    public void onRecyclerViewCreate(Activity activity) {
+        super.onRecyclerViewCreate(activity);
+
+        if (mDialog != null) {
+            mDialog.show();
+        }
+    }
 
     @Override
     public void onCreateView(View view) {
         mView = view;
         super.onCreateView(view);
-
-        if (mDialog != null) {
-            mDialog.show();
-        }
     }
 
     public void setItem(String item) {
@@ -77,8 +83,7 @@ public class SelectView extends ValueView {
     private void showDialog(Context context) {
         String[] items = mItems.toArray(new String[mItems.size()]);
 
-        mDialog = new AlertDialog.Builder(context);
-        mDialog.setItems(items, new DialogInterface.OnClickListener() {
+        mDialog = new Dialog(context).setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 setItem(which);

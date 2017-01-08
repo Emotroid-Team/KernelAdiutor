@@ -30,8 +30,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDialogFragment;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageButton;
 import android.view.LayoutInflater;
@@ -48,6 +46,7 @@ import com.grarak.kerneladiutor.fragments.BaseFragment;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.ViewUtils;
 import com.grarak.kerneladiutor.utils.root.Control;
+import com.grarak.kerneladiutor.views.dialog.Dialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,7 +102,7 @@ public class ProfileActivity extends BaseActivity {
                 currentSettings();
             }
         } else {
-            new AlertDialog.Builder(this).setItems(getResources().getStringArray(R.array.profile_modes),
+            new Dialog(this).setItems(getResources().getStringArray(R.array.profile_modes),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -245,7 +244,7 @@ public class ProfileActivity extends BaseActivity {
         }
     }
 
-    public static class CurrentSettingsFragment extends AppCompatDialogFragment {
+    public static class CurrentSettingsFragment extends DialogFragment {
 
         public static CurrentSettingsFragment newInstance(LinkedHashMap<String, Fragment> sections) {
             CurrentSettingsFragment fragment = new CurrentSettingsFragment();

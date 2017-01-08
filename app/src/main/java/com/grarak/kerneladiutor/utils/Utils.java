@@ -32,7 +32,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.PowerManager;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.StringRes;
 import android.support.v4.view.ViewCompat;
 import android.text.Html;
@@ -62,6 +64,7 @@ import java.math.RoundingMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * Created by willi on 14.04.16.
@@ -71,6 +74,51 @@ public class Utils {
     private static final String TAG = Utils.class.getSimpleName();
     public static boolean DONATED = BuildConfig.DEBUG;
     public static boolean DARK_THEME;
+
+    public static boolean isScreenOn(Context context) {
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            return powerManager.isInteractive();
+        }
+        return powerManager.isScreenOn();
+    }
+
+    public static float getAverage(float... numbers) {
+        float average = 0;
+        for (float num : numbers) {
+            average += num;
+        }
+        average /= numbers.length;
+        return average;
+    }
+
+    public static String getRandomString(int length) {
+        Random random = new Random();
+        String text = "";
+        String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        for (int i = 0; i < length; i++) {
+            text += chars.charAt(random.nextInt(chars.length()));
+        }
+        return text;
+    }
+
+    public static long computeSHAHash(String password) throws Exception {
+        long begin = System.nanoTime();
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+        messageDigest.update(password.getBytes("ASCII"));
+        byte[] data = messageDigest.digest();
+        Base64.encodeToString(data, 0, data.length, 0);
+        return System.nanoTime() - begin;
+    }
+
+    public static String getAndroidId(Context context) {
+        String id;
+        if ((id = Prefs.getString("android_id", "", context)).isEmpty()) {
+            Prefs.saveString("android_id", id = Settings.Secure.getString(context.getContentResolver(),
+                    Settings.Secure.ANDROID_ID), context);
+        }
+        return id;
+    }
 
     public static boolean isTv(Context context) {
         return ((UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE))

@@ -20,7 +20,6 @@
 package com.grarak.kerneladiutor.utils.kernel.cpu;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.grarak.kerneladiutor.R;
@@ -36,9 +35,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,8 +73,6 @@ public class CPUFreq {
     public static int sCoreCtlMinCpu;
     private static SparseArray<List<Integer>> sFreqs = new SparseArray<>();
     private static String[] sGovernors;
-
-    private static final String TAG = CPUFreq.class.getSimpleName();
 
     public static String getGovernorTunablesPath(int cpu, String governor) {
         if (Utils.existFile(Utils.strFormat(CPU_GOVERNOR_TUNABLES_CORE, cpu, governor))) {
@@ -324,7 +318,10 @@ public class CPUFreq {
             }
 
             if (Utils.existFile(Utils.strFormat(CPU_AVAILABLE_GOVERNORS, 0))) {
-                sGovernors = Utils.readFile(Utils.strFormat(CPU_AVAILABLE_GOVERNORS, 0)).split(" ");
+                String value = Utils.readFile(Utils.strFormat(CPU_AVAILABLE_GOVERNORS, 0));
+                if (value != null) {
+                    sGovernors = value.split(" ");
+                }
             }
 
             if (offline) {
@@ -473,16 +470,19 @@ public class CPUFreq {
                 } else {
                     file = Utils.strFormat(TIME_STATE_2, cpu);
                 }
-                String[] valueArray = Utils.readFile(file).trim().split("\\r?\\n");
-                List<Integer> freqs = new ArrayList<>();
-                for (String freq : valueArray) {
-                    long freqInt = Utils.strToLong(freq.split(" ")[0]);
-                    if (file.endsWith("opp_table")) {
-                        freqInt /= 1000;
+                String value = Utils.readFile(file);
+                if (value != null) {
+                    String[] valueArray = value.trim().split("\\r?\\n");
+                    List<Integer> freqs = new ArrayList<>();
+                    for (String freq : valueArray) {
+                        long freqInt = Utils.strToLong(freq.split(" ")[0]);
+                        if (file.endsWith("opp_table")) {
+                            freqInt /= 1000;
+                        }
+                        freqs.add((int) freqInt);
                     }
-                    freqs.add((int) freqInt);
+                    sFreqs.put(cpu, freqs);
                 }
-                sFreqs.put(cpu, freqs);
             } else if (Utils.existFile(Utils.strFormat(AVAILABLE_FREQS, cpu))) {
                 int readcpu = cpu;
                 boolean offline = isOffline(cpu);
@@ -652,27 +652,20 @@ public class CPUFreq {
 
     public static float[] getCpuUsage() {
         try {
-            Usage[] usage1 = getUsages();
+            Usage[] prevUsage = getUsages();
             Thread.sleep(500);
-            Usage[] usage2 = getUsages();
+            Usage[] usage = getUsages();
 
-            if (usage1 != null && usage2 != null) {
-                float[] pers = new float[usage1.length];
-                for (int i = 0; i < usage1.length; i++) {
-                    long idle1 = usage1[i].getIdle();
-                    long up1 = usage1[i].getUptime();
+            if (prevUsage != null && usage != null) {
+                float[] pers = new float[prevUsage.length];
+                for (int i = 0; i < prevUsage.length; i++) {
+                    float prevIdle = prevUsage[i].getIdle();
+                    float prevUp = prevUsage[i].getUptime();
 
-                    long idle2 = usage2[i].getIdle();
-                    long up2 = usage2[i].getUptime();
+                    float idle = usage[i].getIdle();
+                    float up = usage[i].getUptime();
 
-                    float cpu = -1f;
-                    if (idle1 >= 0 && up1 >= 0 && idle2 >= 0 && up2 >= 0) {
-                        if ((up2 + idle2) > (up1 + idle1) && up2 >= up1) {
-                            cpu = (up2 - up1) / (float) ((up2 + idle2) - (up1 + idle1));
-                            cpu *= 100.0f;
-                        }
-                    }
-
+                    float cpu = (up - prevUp) / ((up + idle) - (prevUp + prevIdle)) * 100;
                     pers[i] = cpu < 0 ? 0 : cpu > 100 ? 100 : cpu;
                 }
                 return pers;
@@ -685,19 +678,16 @@ public class CPUFreq {
     }
 
     private static Usage[] getUsages() {
-        try {
-            RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
-            Usage[] usage = new Usage[getCpuCount() + 1];
-            for (int i = 0; i < usage.length; i++)
-                usage[i] = new Usage(reader.readLine());
-            reader.close();
-            return usage;
-        } catch (FileNotFoundException e) {
-            Log.i(TAG, "/proc/stat does not exist");
-        } catch (IOException e) {
-            e.printStackTrace();
+        String stat = Utils.readFile("/proc/stat");
+        if (stat == null) return null;
+        String[] stats = stat.split("\\r?\\n");
+
+        Usage[] usage = new Usage[getCpuCount() + 1];
+        for (int i = 0; i < usage.length; i++) {
+            if (i >= stats.length) return null;
+            usage[i] = new Usage(stats[i]);
         }
-        return null;
+        return usage;
     }
 
     private static class Usage {
@@ -707,7 +697,7 @@ public class CPUFreq {
         private Usage(String stats) {
             if (stats == null) return;
 
-            String[] values = stats.replace("  ", " ").split(" ");
+            String[] values = stats.replaceAll("\\s{2,}", " ").trim().split(" ");
             this.stats = new long[values.length - 1];
             for (int i = 0; i < this.stats.length; i++) {
                 this.stats[i] = Utils.strToLong(values[i + 1]);
@@ -715,19 +705,19 @@ public class CPUFreq {
         }
 
         public long getUptime() {
-            if (stats == null) return -1L;
-            long l = 0L;
-            for (int i = 0; i < stats.length; i++) {
-                if (i != 3) l += stats[i];
+            if (stats == null) return 0;
+            long l = 0;
+            for (int i = 0; i < stats.length - 2; i++) {
+                if (i != 3 && i != 4) l += stats[i];
             }
             return l;
         }
 
         private long getIdle() {
             try {
-                return stats == null ? -1L : stats[3];
+                return stats == null ? 0 : stats[3] + stats[4];
             } catch (ArrayIndexOutOfBoundsException e) {
-                return -1L;
+                return 0;
             }
         }
 

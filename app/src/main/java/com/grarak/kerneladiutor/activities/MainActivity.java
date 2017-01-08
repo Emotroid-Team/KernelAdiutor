@@ -62,6 +62,9 @@ import com.grarak.kerneladiutor.utils.kernel.wake.Wake;
 import com.grarak.kerneladiutor.utils.root.RootUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -128,7 +131,17 @@ public class MainActivity extends BaseActivity {
              *  2: License is invalid
              *  3: Donate apk is patched/cracked
              */
-            launch(data == null ? -1 : data.getIntExtra("result", -1));
+            int result = data == null ? -1 : data.getIntExtra("result", -1);
+            if (result == 0) {
+                try {
+                    ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(
+                            "com.grarak.kerneladiutordonate", 0);
+                    Utils.writeFile(applicationInfo.dataDir + "/license",
+                            Utils.encodeString(Utils.getAndroidId(this)), false, true);
+                } catch (PackageManager.NameNotFoundException ignored) {
+                }
+            }
+            launch(result);
 
         } else if (requestCode == 1) {
 
@@ -291,6 +304,7 @@ public class MainActivity extends BaseActivity {
                 private PackageInfo mPackageInfo;
                 private boolean mPatched;
                 private boolean mInternetAvailable;
+                private boolean mLicensedCached;
 
                 @Override
                 protected void onPreExecute() {
@@ -300,40 +314,68 @@ public class MainActivity extends BaseActivity {
                                 "com.grarak.kerneladiutordonate", 0);
                         mPackageInfo = getPackageManager().getPackageInfo(
                                 "com.grarak.kerneladiutordonate", 0);
+                        if (BuildConfig.DEBUG) {
+                            Utils.DONATED = false;
+                        }
                     } catch (PackageManager.NameNotFoundException ignored) {
                     }
                 }
 
                 @Override
                 protected Boolean doInBackground(Void... params) {
-                    if (mApplicationInfo != null && mPackageInfo != null && mPackageInfo.versionCode == 130) {
-                        mPatched = !Utils.checkMD5("5c7a92a5b2dcec409035e1114e815b00",
-                                new File(mApplicationInfo.publicSourceDir));
+                    if (mApplicationInfo != null && mPackageInfo != null
+                            && mPackageInfo.versionCode == 130) {
                         try {
-                            Process process = Runtime.getRuntime().exec("ping -W 5 -c 1 8.8.8.8");
-                            mInternetAvailable = process.waitFor() == 0;
-                            process.destroy();
+                            mPatched = !Utils.checkMD5("5c7a92a5b2dcec409035e1114e815b00",
+                                    new File(mApplicationInfo.publicSourceDir))
+                                    || Utils.isPatched(mApplicationInfo);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
+                        if (Utils.existFile(mApplicationInfo.dataDir + "/license")) {
+                            String content = Utils.readFile(mApplicationInfo.dataDir + "/license");
+                            if (!content.isEmpty() && (content = Utils.decodeString(content)) != null) {
+                                if (content.equals(Utils.getAndroidId(MainActivity.this))) {
+                                    mLicensedCached = true;
+                                }
+                            }
+                        }
+
+                        try {
+                            if (!mLicensedCached) {
+                                HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://www.google.com").openConnection();
+                                urlConnection.setRequestProperty("User-Agent", "Test");
+                                urlConnection.setRequestProperty("Connection", "close");
+                                urlConnection.setConnectTimeout(3000);
+                                urlConnection.connect();
+                                mInternetAvailable = urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK;
+                            }
+                        } catch (IOException ignored) {
+                        }
+
+                        return !mPatched;
                     }
-                    return mApplicationInfo != null && mPackageInfo != null && mPackageInfo.versionCode == 130
-                            && !mPatched;
+                    return false;
                 }
 
                 @Override
-                protected void onPostExecute(Boolean aBoolean) {
-                    super.onPostExecute(aBoolean);
-                    if (aBoolean && mInternetAvailable) {
+                protected void onPostExecute(Boolean donationValid) {
+                    super.onPostExecute(donationValid);
+                    if (donationValid && mLicensedCached) {
+                        launch(0);
+                    } else if (donationValid && mInternetAvailable) {
                         Intent intent = new Intent(Intent.ACTION_MAIN);
                         intent.setComponent(new ComponentName("com.grarak.kerneladiutordonate",
                                 "com.grarak.kerneladiutordonate.MainActivity"));
                         startActivityForResult(intent, 0);
-                    } else if (mApplicationInfo != null && mPackageInfo != null
-                            && mPackageInfo.versionCode == 130
-                            && !mInternetAvailable && !mPatched) {
-                        launch(0);
+                    } else if (donationValid) {
+                        launch(1);
                     } else {
+                        if (mPatched && !BuildConfig.DEBUG) {
+                            Answers.getInstance().logCustom(new CustomEvent("Pirated")
+                                    .putCustomAttribute("android_id", Utils.getAndroidId(MainActivity.this)));
+                        }
                         launch(mPatched ? 3 : -1);
                     }
                 }

@@ -154,7 +154,7 @@ public class Device {
         public static void load() {
             for (String prop : sProps) {
                 ROM_VERSION = RootUtils.getProp(prop);
-                if (!ROM_VERSION.isEmpty()) {
+                if (ROM_VERSION != null && !ROM_VERSION.isEmpty()) {
                     break;
                 }
             }
@@ -212,26 +212,37 @@ public class Device {
         private static String CPUINFO;
 
         public static String getFeatures() {
-            String features = getString("Features");
+            String features = getString("Features", true);
             if (!features.isEmpty()) return features;
-            return getString("flags");
+            return getString("flags", true);
         }
 
         public static String getProcessor() {
-            String pro = getString("Processor");
+            String pro = getString("Processor", true);
             if (!pro.isEmpty()) return pro;
-            return getString("model name");
+            return getString("model name", true);
         }
 
         public static String getVendor() {
-            String vendor = getString("Hardware");
-            if (!vendor.isEmpty()) return vendor;
-            return getString("vendor_id");
+            return getVendor(true);
         }
 
-        private static String getString(String prefix) {
+        public static String getVendor(boolean root) {
+            String vendor = getString("Hardware", root);
+            if (!vendor.isEmpty()) return vendor;
+            return getString("vendor_id", root);
+        }
+
+        public static String getCpuInfo(boolean root) {
             if (CPUINFO == null) {
-                load();
+                load(root);
+            }
+            return CPUINFO;
+        }
+
+        private static String getString(String prefix, boolean root) {
+            if (CPUINFO == null) {
+                load(root);
             }
             try {
                 for (String line : CPUINFO.split("\\r?\\n")) {
@@ -245,7 +256,11 @@ public class Device {
         }
 
         public static void load() {
-            CPUINFO = Utils.readFile(CPUINFO_PROC);
+            load(true);
+        }
+
+        public static void load(boolean root) {
+            CPUINFO = Utils.readFile(CPUINFO_PROC, root);
         }
 
     }
@@ -291,7 +306,11 @@ public class Device {
     }
 
     public static String getKernelVersion(boolean extended) {
-        return extended ? Utils.readFile("/proc/version") : RootUtils.runCommand("uname -r");
+        return getKernelVersion(extended, true);
+    }
+
+    public static String getKernelVersion(boolean extended, boolean root) {
+        return extended ? Utils.readFile("/proc/version", root) : RootUtils.runCommand("uname -r");
     }
 
     public static String getArchitecture() {
@@ -335,7 +354,11 @@ public class Device {
     }
 
     public static String getBoard() {
-        String hardware = CPUInfo.getVendor().toLowerCase();
+        return getBoard(true);
+    }
+
+    public static String getBoard(boolean root) {
+        String hardware = CPUInfo.getVendor(root).toLowerCase();
         String ret = null;
         if (hardware.matches(".*msm.+.\\d+.*")) {
             String board = hardware.split("msm")[1].trim();

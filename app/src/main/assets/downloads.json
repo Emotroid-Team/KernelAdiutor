@@ -166,6 +166,38 @@
   },
   {
     "vendor": [
+      "motorola",
+      "Motorola"
+    ],
+    "device": [
+      "falcon",
+      "falcon_umts",
+      "falcon_gpe",
+      "falcon_cdma",
+      "XT1031",
+      "XT1032",
+      "XT1033",
+      "XT1034"
+    ],
+    "link": "https://raw.githubusercontent.com/BryanByteZero/KernelAdiutor/master/download/falcon.json"
+  },
+  {
+    "vendor": [
+      "motorola",
+      "Motorola"
+    ],
+    "device": [
+      "peregrine",
+      "peregrine_umts",
+      "peregrine_cdma",
+      "XT1039",
+      "XT1040",
+      "XT1045"
+    ],
+    "link": "https://raw.githubusercontent.com/BryanByteZero/KernelAdiutor/master/download/peregrine.json" 
+  },
+  {  
+    "vendor": [
       "YU"
     ],
     "device": [
@@ -240,6 +272,7 @@
       "SONY"
     ],
     "device": [
+      "nicki",
       "Xperia M",
       "C1904",
       "C1905",
@@ -247,5 +280,21 @@
       "D2005"
     ],
     "link": "https://raw.githubusercontent.com/Grarak/KernelAdiutor/master/download/nicki.json"
+  },
+  { 
+    "vendor": [
+      "LeEco",	
+      "LeTv"
+    ],
+    "device": [
+      "s2",
+      "X526",
+      "x526",
+      "le_s2",
+      "le_ww_s2",
+      "le_s2_ww"
+    ],
+    "link": "https://raw.githubusercontent.com/Grarak/KernelAdiutor/master/download/s2.json"
   }
 ]
+

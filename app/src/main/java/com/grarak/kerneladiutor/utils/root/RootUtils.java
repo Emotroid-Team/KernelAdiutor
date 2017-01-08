@@ -25,12 +25,9 @@ import com.grarak.kerneladiutor.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by willi on 30.12.15.
@@ -104,10 +101,6 @@ public class RootUtils {
         return getSU().runCommand(command);
     }
 
-    public static boolean SUClosed() {
-        return su == null || su.closed;
-    }
-
     public static SU getSU() {
         if (su == null || su.closed || su.denied) {
             if (su != null && !su.closed) {
@@ -132,7 +125,6 @@ public class RootUtils {
         private boolean closed;
         private boolean denied;
         private boolean firstTry;
-        private File mLogFile;
 
         public SU() {
             this(true, null);
@@ -149,7 +141,6 @@ public class RootUtils {
                 mProcess = Runtime.getRuntime().exec(root ? "su" : "sh");
                 mWriter = new BufferedWriter(new OutputStreamWriter(mProcess.getOutputStream()));
                 mReader = new BufferedReader(new InputStreamReader(mProcess.getInputStream()));
-                mLogFile = new File(Utils.getInternalDataStorage() + "/log.txt");
             } catch (IOException e) {
                 if (mTag != null) {
                     Log.e(mTag, root ? "Failed to run shell as su" : "Failed to run shell as sh");
@@ -180,7 +171,6 @@ public class RootUtils {
                     if (mTag != null) {
                         Log.i(mTag, "run: " + command + " output: " + sb.toString().trim());
                     }
-                    logFile(command + ": " + sb.toString().trim());
 
                     return sb.toString().trim();
                 } catch (IOException e) {
@@ -197,15 +187,6 @@ public class RootUtils {
             }
         }
 
-        private void logFile(String log) {
-            if (mLogFile.length() / 1024 / 1024 > 1) {
-                mLogFile.delete();
-            }
-            Utils.writeFile(mLogFile.toString(),
-                    new SimpleDateFormat("dd-MM-yy HH:mm:ss").format(new Date()) + ": " + log + "\n",
-                    true, false);
-        }
-
         public void close() {
             try {
                 if (mWriter != null) {
@@ -214,20 +195,24 @@ public class RootUtils {
 
                     mWriter.close();
                 }
-                mReader.close();
+                if (mReader != null) {
+                    mReader.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            try {
-                mProcess.waitFor();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            if (mProcess != null) {
+                try {
+                    mProcess.waitFor();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-            mProcess.destroy();
-            if (mTag != null) {
-                Log.i(mTag, String.format("%s closed: %d", mRoot ? "SU" : "SH", mProcess.exitValue()));
+                mProcess.destroy();
+                if (mTag != null) {
+                    Log.i(mTag, String.format("%s closed: %d", mRoot ? "SU" : "SH", mProcess.exitValue()));
+                }
             }
             closed = true;
         }

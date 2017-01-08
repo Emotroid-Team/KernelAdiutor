@@ -8,6 +8,7 @@
   <string name="collecting_info">Információ gyűjtése</string>
   <string name="no_root">Nincs root jog</string>
   <string name="no_busybox">Nincs busybox</string>
+  <string name="open">%s megnyitása</string>
   <!-- Security -->
   <string name="password">Jelszó</string>
   <string name="password_wrong">Hibás jelszó</string>
@@ -18,7 +19,6 @@
   <string name="cancel">Mégse</string>
   <string name="ok">OK</string>
   <string name="unknown">Ismeretlen</string>
-  <string name="license_invalid">Köszönjük, hogy megvásároltad a támogatói alkalmazást! Sajnos a licenc ellenőrzés sikertelen. Kérjük, próbálkozz később. Ha még mindig nem működik, lépj kapcsolatba velem.</string>
   <string name="pirated">Úgy látszik a támogatói alkalmazás nem a Play Áruházon keresztül lett megvásárolva! Ha lekalózkodtad, akkor szégyelld magad!</string>
   <string name="donate">Támogatás</string>
   <string name="donate_summary">Ez a szolgáltatás csak akkor vehető igénybe, ha a támogatói alkalmazás telepítve van! Mégse aggódj. Mivel ez az alkalmazás nyit forráskódú, így könnyen magad is építheted eltávolítva ezt az ellenőrzést. De remélem támogatod a fejlesztőket. Köszönjük, hogy a Kernel Adiutor-t használod! Ha megvásároltad a támogatói alkalmazást, akkor újra kell indítani a Kernel Adiutor-t ahhoz, hogy minden funkció engedélyezésre kerüljön.</string>
@@ -636,6 +636,7 @@
   <string name="wlan_rx_wakelock_divider">wlan_rx wakelock elválasztó</string>
   <string name="msm_hsic_wakelock_divider">msm_hsic wakelock elválasztó</string>
   <string name="bcmdhd_wakelock_divider">BCMDHD Wakelock elválasztó</string>
+  <!-- Data Sharing -->
   <!-- Custom Controls -->
   <string name="welcome">Üdvözöllek</string>
   <string name="custom_controls_summary">Ebben a részben hozhatsz létre, vagy importálhatsz egyéni vezérlőket, amelyek nem léteznek az alkalmazásban (még).</string>
@@ -745,6 +746,7 @@
   <string name="arguments">Paraméterek: %s</string>
   <string name="disable_question">%s tiltása?</string>
   <!-- Settings -->
+  <string name="open_settings">Beállítások megnyitása</string>
   <string name="fahrenheit_title">Fahrenheit</string>
   <string name="fahrenheit_summary">Fahrenheit használata a hőmérséklet méréséhez.</string>
   <string name="force_english">Angol nyelvű megjelenítés kényszerítése</string>
@@ -756,6 +758,8 @@
   <string name="force_cards">Kártyák kényszerítése</string>
   <string name="force_cards_summary">Használjon kártyákat az elemekhez, ha lehetséges.</string>
   <string name="accent_color">Másodlagos szín</string>
+  <string name="section_icons">Szakasz ikonok</string>
+  <string name="section_icons_summary">Ikonok megjelenítése minden szakaszhoz a navigációs fiókban.</string>
   <string name="instant">Azonnali</string>
   <string name="five_sec">5 másodperc</string>
   <string name="ten_sec">10 másodperc</string>

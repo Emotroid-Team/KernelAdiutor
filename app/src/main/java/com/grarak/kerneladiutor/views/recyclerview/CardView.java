@@ -82,6 +82,15 @@ public class CardView extends RecyclerViewItem {
         return R.layout.rv_card_view;
     }
 
+    @Override
+    public void onRecyclerViewCreate(Activity activity) {
+        super.onRecyclerViewCreate(activity);
+
+        for (RecyclerViewItem item : mItems) {
+            item.onRecyclerViewCreate(activity);
+        }
+    }
+
     private void initLayouts(View view) {
         mRootView = (android.support.v7.widget.CardView) view;
         mTitleParent = view.findViewById(R.id.title_parent);
@@ -121,16 +130,17 @@ public class CardView extends RecyclerViewItem {
                 if (mLayoutParent.getVisibility() == View.VISIBLE) {
                     mLayoutHeight = mLayoutParent.getHeight();
                 }
-                mShowLayout = !mShowLayout;
-                animateLayout(!mShowLayout);
-                viewChanged();
+                if (mLayoutAnimator == null) {
+                    mShowLayout = !mShowLayout;
+                    animateLayout(!mShowLayout);
+                    viewChanged();
+                }
             }
         });
         super.onCreateView(view);
     }
 
     private void animateLayout(final boolean collapse) {
-        if (mLayoutAnimator != null) return;
         mArrow.animate().rotationX(collapse ? 180 : 0).setDuration(500).start();
         mLayoutAnimator = ValueAnimator.ofInt(collapse ? mLayoutHeight : 0, collapse ? 0 : mLayoutHeight);
         mLayoutAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
