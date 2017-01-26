@@ -27,6 +27,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by willi on 31.12.15.
@@ -357,21 +359,78 @@ public class Device {
         return getBoard(true);
     }
 
+    private interface BoardFormatter {
+        String format(String board);
+    }
+
+    private static HashMap<String, BoardFormatter> sBoardFormatters = new HashMap<>();
+    private static HashMap<String, String> sBoardAliases = new HashMap<>();
+
+    static {
+        sBoardFormatters.put(".*msm.+.\\d+.*", new BoardFormatter() {
+            @Override
+            public String format(String board) {
+                return "msm" + board.split("msm")[1].trim().split(" ")[0];
+            }
+        });
+
+        sBoardFormatters.put("mt\\d*.", new BoardFormatter() {
+            @Override
+            public String format(String board) {
+                return "mt" + board.split("mt")[1].trim().split(" ")[0];
+            }
+        });
+
+        sBoardFormatters.put(".*apq.+.\\d+.*", new BoardFormatter() {
+            @Override
+            public String format(String board) {
+                return "apq" + board.split("apq")[1].trim().split(" ")[0];
+            }
+        });
+
+        sBoardFormatters.put(".*omap+\\d.*", new BoardFormatter() {
+            @Override
+            public String format(String board) {
+                Matcher matcher = Pattern.compile("omap+\\d").matcher(board);
+                if (matcher.find()) {
+                    return matcher.group();
+                }
+                return null;
+            }
+        });
+
+        sBoardFormatters.put("sun+\\d.", new BoardFormatter() {
+            @Override
+            public String format(String board) {
+                return board;
+            }
+        });
+
+        sBoardFormatters.put("spyder", new BoardFormatter() {
+            @Override
+            public String format(String board) {
+                return "omap4";
+            }
+        });
+
+        sBoardAliases.put("msm8994v2.1", "msm8994");
+        sBoardAliases.put("msm8974pro.*", "msm8974pro");
+    }
+
     public static String getBoard(boolean root) {
         String hardware = CPUInfo.getVendor(root).toLowerCase();
         String ret = null;
-        if (hardware.matches(".*msm.+.\\d+.*")) {
-            String board = hardware.split("msm")[1].trim();
-            ret = "msm" + board.split(" ")[0];
-        } else if (hardware.matches("mt\\d*.")) {
-            String board = hardware.split("mt")[1].trim();
-            ret = "mt" + board.split(" ")[0];
-        } else if (hardware.matches(".*apq.+.\\d+.*")) {
-            String board = hardware.split("apq")[1].trim();
-            ret = "apq" + board.split(" ")[0];
+        for (String boardregex : sBoardFormatters.keySet()) {
+            if (hardware.matches(boardregex)) {
+                ret = sBoardFormatters.get(boardregex).format(hardware);
+            }
         }
-        if (ret != null && ret.equalsIgnoreCase("msm8994v2.1")) {
-            ret = "msm8994";
+        if (ret != null) {
+            for (String alias : sBoardAliases.keySet()) {
+                if (ret.matches(alias)) {
+                    ret = sBoardAliases.get(alias);
+                }
+            }
         }
         return ret != null ? ret : Build.BOARD.toLowerCase();
     }
