@@ -45,10 +45,24 @@ public class Misc {
     private static final String CPU_QUIET_AVAILABLE_GOVERNORS = CPU_QUIET + "/available_governors";
     private static final String CPU_QUIET_CURRENT_GOVERNOR = CPU_QUIET + "/current_governor";
 
+    private static final String CPU_INPUT_BOOST = "/sys/kernel/cpu_input_boost/enabled";
+
     private static final String CPU_TOUCH_BOOST = "/sys/module/msm_performance/parameters/touchboost";
 
     private static String[] sAvailableCFSSchedulers;
     private static String[] sCpuQuietAvailableGovernors;
+
+    public static void enableCpuInputBoost(boolean enabled, Context context) {
+        run(Control.write(enabled ? "1" : "0", CPU_INPUT_BOOST), CPU_INPUT_BOOST, context);
+    }
+
+    public static boolean isCpuInputBoostEnabled() {
+        return Utils.readFile(CPU_INPUT_BOOST).equals("1");
+    }
+
+    public static boolean hasCpuInputBoost() {
+        return Utils.existFile(CPU_INPUT_BOOST);
+    }
 
     public static void enableCpuTouchBoost(boolean enabled, Context context) {
         run(Control.write(enabled ? "1" : "0", CPU_TOUCH_BOOST), CPU_TOUCH_BOOST, context);

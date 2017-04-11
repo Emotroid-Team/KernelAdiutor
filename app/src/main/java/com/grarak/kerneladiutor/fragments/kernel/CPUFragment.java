@@ -123,6 +123,9 @@ public class CPUFragment extends RecyclerViewFragment {
         if (CPUBoost.supported()) {
             cpuBoostInit(items);
         }
+        if (Misc.hasCpuInputBoost()) {
+            cpuInputBoostInit(items);
+        }
         if (Misc.hasCpuTouchBoost()) {
             cpuTouchBoostInit(items);
         }
@@ -593,6 +596,21 @@ public class CPUFragment extends RecyclerViewFragment {
             items.add(title);
             items.addAll(cpuBoost);
         }
+    }
+
+    private void cpuInputBoostInit(List<RecyclerViewItem> items) {
+        SwitchView cpuInputBoost = new SwitchView();
+        cpuInputBoost.setTitle(getString(R.string.cpu_input_boost));
+        cpuInputBoost.setSummary(getString(R.string.cpu_input_boost_summary));
+        cpuInputBoost.setChecked(Misc.isCpuInputBoostEnabled());
+        cpuInputBoost.addOnSwitchListener(new SwitchView.OnSwitchListener() {
+            @Override
+            public void onChanged(SwitchView switchView, boolean isChecked) {
+                Misc.enableCpuInputBoost(isChecked, getActivity());
+            }
+        });
+
+        items.add(cpuInputBoost);
     }
 
     private void cpuTouchBoostInit(List<RecyclerViewItem> items) {
